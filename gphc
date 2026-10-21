@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""gphc: drive GriefPrevention on a local Paper server with real headless Minecraft clients."""
+import argparse, sys
+from pathlib import Path
+
+if sys.version_info < (3, 11, 4):
+    sys.exit("gphc needs Python 3.11.4+")
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+from gphc import env  # noqa: E402
+from gphc.install import setup  # noqa: E402
+from gphc.run import run  # noqa: E402
+from gphc.server import Server  # noqa: E402
+
+
+def main():
+    p = argparse.ArgumentParser(prog="gphc", description=__doc__)
+    common = argparse.ArgumentParser(add_help=False)
+    mc = env.default_mc()
+    common.add_argument("--mc", default=mc, help=f"Minecraft version (default {mc})")
+    sub = p.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("setup", parents=[common],
+                   help="download pinned pieces, install Fabric, create accounts, warm up client and server")
+    r = sub.add_parser("run", parents=[common], help="run a scenario file and print a JSON verdict")
+    r.add_argument("scenario")
+    r.add_argument("--gp-jar", required=True, help="GriefPrevention plugin jar to test")
+    r.add_argument("--keep", action="store_true", help="leave the server running afterwards")
+    c = sub.add_parser("rcon", parents=[common], help="send a console command to a server left running with --keep")
+    c.add_argument("command", nargs="+")
+    sub.add_parser("stop", parents=[common], help="stop a server left running with --keep")
+    a = p.parse_args()
+
+    if a.cmd == "setup":
+        setup(a.mc)
+    elif a.cmd == "run":
+        sys.exit(run(a.scenario, a.mc, Path(a.gp_jar).resolve(), keep=a.keep))
+    else:
+        print(Server(a.mc).connect().cmd(" ".join(a.command) if a.cmd == "rcon" else "stop"))
+
+
+if __name__ == "__main__":
+    main()

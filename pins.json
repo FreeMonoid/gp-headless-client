@@ -1,0 +1,68 @@
+{
+  "default_mc": "26.3",
+  "headlessmc": {
+    "version": "3.0.0-RC8",
+    "url": "https://github.com/headlesshq/headlessmc/releases/download/3.0.0-RC8/headlessmc.jar",
+    "sha256": "a639546527d323f5a13370d8c47c7b7d87f44c2686f8ce93838e6685d3cf25e3"
+  },
+  "java": {
+    "25": {
+      "mac-aarch64": {
+        "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_aarch64_mac_hotspot_25.0.4.1_1.tar.gz",
+        "sha256": "5b02bcc908da092e7e00b9772d4f9bbb87f44a60b7c90f7cf5a91a1d98f37e1b"
+      },
+      "mac-x64": {
+        "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_x64_mac_hotspot_25.0.4.1_1.tar.gz",
+        "sha256": "099cbc182af99ab454991a4230f0bdbf2b2ee3f61ce462d637aceaa12709380d"
+      },
+      "linux-aarch64": {
+        "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_aarch64_linux_hotspot_25.0.4.1_1.tar.gz",
+        "sha256": "34828cbb93ed31c281c84ecb31ddab655d11a802f263c1fc019d42e9e0230fed"
+      },
+      "linux-x64": {
+        "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_x64_linux_hotspot_25.0.4.1_1.tar.gz",
+        "sha256": "1731a34baadec5479258ea0202e4d5d865d2efeee60cb0c7d7eb056fe96ca219"
+      }
+    }
+  },
+  "mc": {
+    "26.3": {
+      "port": 25600,
+      "java": 25,
+      "paper": {
+        "build": 211,
+        "url": "https://fill-data.papermc.io/v1/objects/f3a5953094696578193b38fa2831e86db254dfbf4817b1ac6cfca55a2d18ca94/paper-26.3-211.jar",
+        "sha256": "f3a5953094696578193b38fa2831e86db254dfbf4817b1ac6cfca55a2d18ca94"
+      },
+      "fabric_api": {
+        "version": "0.164.0+26.3",
+        "url": "https://cdn.modrinth.com/data/P7dR8mSH/versions/LEklt8GT/fabric-api-0.164.0%2B26.3.jar",
+        "sha256": "5a75198715a50a86787658617b03b97da9936d32df04896748c12135ba709de3"
+      },
+      "minescript": {
+        "version": "5.0",
+        "url": "https://cdn.modrinth.com/data/KcpXWngB/versions/huKwMeg8/minescript-fabric-26.3-5.0.jar",
+        "sha256": "ee84802468fd6d67acc78282a91a4089202806b9a01fdbbf92533611c38ee4a3"
+      }
+    },
+    "26.2": {
+      "port": 25599,
+      "java": 25,
+      "paper": {
+        "build": 129,
+        "url": "https://fill-data.papermc.io/v1/objects/b1d8f6bfa1b6101fa8e947b53041cb3bdf5540e7b83b6547ca19ba7edefeb083/paper-26.2-129.jar",
+        "sha256": "b1d8f6bfa1b6101fa8e947b53041cb3bdf5540e7b83b6547ca19ba7edefeb083"
+      },
+      "fabric_api": {
+        "version": "0.161.0+26.2",
+        "url": "https://cdn.modrinth.com/data/P7dR8mSH/versions/ewUK83HI/fabric-api-0.161.0%2B26.2.jar",
+        "sha256": "e5b858ceb13290c274e31cb888ff5a1a40cb91067e7ffab0b5b775aec51e216a"
+      },
+      "minescript": {
+        "version": "5.0",
+        "url": "https://cdn.modrinth.com/data/KcpXWngB/versions/DQWgPocs/minescript-fabric-26.2-5.0.jar",
+        "sha256": "35fd280b6e014f843cb7e6202e03557f4e112d1337f96b9bd469f0b1e7f75b17"
+      }
+    }
+  }
+}
