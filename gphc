@@ -24,6 +24,7 @@ def main():
     r.add_argument("scenario")
     r.add_argument("--gp-jar", required=True, help="GriefPrevention plugin jar to test")
     r.add_argument("--keep", action="store_true", help="leave the server running afterwards")
+    r.add_argument("--server-jar", help="run this server jar (e.g. a BuildTools Spigot) instead of the pinned Paper")
     c = sub.add_parser("rcon", parents=[common], help="send a console command to a server left running with --keep")
     c.add_argument("command", nargs="+")
     sub.add_parser("stop", parents=[common], help="stop a server left running with --keep")
@@ -32,7 +33,7 @@ def main():
     if a.cmd == "setup":
         setup(a.mc)
     elif a.cmd == "run":
-        sys.exit(run(a.scenario, a.mc, Path(a.gp_jar).resolve(), keep=a.keep))
+        sys.exit(run(a.scenario, a.mc, Path(a.gp_jar).resolve(), keep=a.keep, server_jar=a.server_jar))
     else:
         print(Server(a.mc).connect().cmd(" ".join(a.command) if a.cmd == "rcon" else "stop"))
 

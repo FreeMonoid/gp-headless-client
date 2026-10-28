@@ -8,7 +8,7 @@ from .client import Bots
 from .server import Server
 
 
-def run(scenario_path, mc, gp_jar, keep=False):
+def run(scenario_path, mc, gp_jar, keep=False, server_jar=None):
     ns = runpy.run_path(scenario_path)
     if "run" not in ns:
         sys.exit(f"{scenario_path} defines no run(t)")
@@ -17,7 +17,7 @@ def run(scenario_path, mc, gp_jar, keep=False):
     name = Path(scenario_path).stem
     run_dir = env.RUNS / f"{datetime.now():%Y%m%d-%H%M%S}-{name}"
     run_dir.mkdir(parents=True)
-    server, bots, t, error = Server(mc), None, None, None
+    server, bots, t, error = Server(mc, server_jar), None, None, None
     with open(run_dir / "trace.log", "w") as trace:
         try:
             server.start(gp_jar)
@@ -36,7 +36,7 @@ def run(scenario_path, mc, gp_jar, keep=False):
             if server.log.exists():
                 shutil.copy(server.log, run_dir / "server.log")
     checks = t.checks if t else []
-    report = {"scenario": name, "mc": mc, "gp_version": server.gp_version, "gp_jar": str(gp_jar),
+    report = {"scenario": name, "mc": mc, "server": server.jar.name, "gp_version": server.gp_version, "gp_jar": str(gp_jar),
               "ok": error is None and all(c["ok"] for c in checks), "checks": checks, "error": error,
               "run_dir": str(run_dir)}
     (run_dir / "report.json").write_text(json.dumps(report, indent=2))

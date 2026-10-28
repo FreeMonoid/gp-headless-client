@@ -54,6 +54,11 @@ class Player:
             raise RuntimeError(f"{self.name} did not arrive at {x},{z}")
         self.bot.call("wait_loaded", x=x, y=y - 1, z=z)
 
+    def riding(self):
+        """Entity id the server says the player is mounted on, or None."""
+        m = re.search(r'"([a-z_:]+)"', self.t.cmd(f"data get entity {self.name} RootVehicle.Entity.id"))
+        return m.group(1) if m else None
+
     # client-side verbs
     def block(self, x, y, z): return self.bot.call("block", x=x, y=y, z=z)
     def entities(self, r=6): return self.bot.call("entities", r=r)
@@ -106,6 +111,15 @@ class Player:
         self.tp(x, y + 1, z + 2)
         with self.watch(self.entities) as r:
             self.look_at(x + 0.5, y + 1.0, z + 0.5)
+            self.use()
+        return r
+
+    def sit(self, at):
+        """Right-click the entity standing on block `at`; `after` is what the player then rides."""
+        x, y, z = at
+        self.tp(x, y + 1, z + 2)
+        with self.watch(self.riding) as r:
+            self.look_at(x + 0.5, y + 1.2, z + 0.5)
             self.use()
         return r
 

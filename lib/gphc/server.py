@@ -1,5 +1,6 @@
-"""Paper server under GPHC_HOME/servers/<mc>, driven over RCON."""
+"""Paper server under GPHC_HOME/servers/<mc>, driven over RCON. `jar` swaps in another server jar (Spigot) in its own dir."""
 import re, shutil, socket, struct, subprocess, zipfile
+from pathlib import Path
 from . import env
 
 RCON_PASSWORD = "gphc"
@@ -11,13 +12,13 @@ GriefPrevention:
 
 
 class Server:
-    def __init__(self, mc):
+    def __init__(self, mc, jar=None):
         pins = env.mc_pins(mc)
         self.mc, self.port = mc, pins["port"]
         self.rcon_port = self.port + 1000
         self.bot_port = self.port + 2000      # where clients call the driver back (client/gpbot.py)
-        self.dir = env.server_dir(mc)
-        self.jar = env.DL / f"paper-{mc}-{pins['paper']['build']}.jar"
+        self.jar = Path(jar) if jar else env.DL / f"paper-{mc}-{pins['paper']['build']}.jar"
+        self.dir = env.server_dir(mc) if jar is None else env.server_dir(f"{mc}-{self.jar.stem}")
         self.log = self.dir / "server.log"
         self.proc = self.rcon = self.gp_version = None
 
