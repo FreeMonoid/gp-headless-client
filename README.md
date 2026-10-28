@@ -14,6 +14,7 @@ set `GPHC_JAVA_25=<java home>` to use your own. State lives in `GPHC_HOME` (defa
 ./gphc setup                                   # once: pinned jars, Fabric, offline accounts, warm-up
 ./gphc run examples/claim_protects_blocks.py --gp-jar path/to/GriefPrevention.jar   # smoke test
 ./gphc run my_repro.py --gp-jar …              # --mc 26.2 selects another pinned version
+./gphc run my_repro.py --gp-jar … --server-jar path/to/spigot-26.3.jar   # another server jar (e.g. BuildTools Spigot)
 ```
 
 ```json
@@ -55,6 +56,7 @@ def run(t):
 | `p.break_block(x, y, z, secs=4)` | hold attack on a block | `.before`, `.after`, `.changed`, `.denied`, `.chat` |
 | `p.place(item, on=(x, y, z))` | right-click the top face holding `item` | `.appeared`, `.denied`, `.chat` |
 | `p.attack_entity(at=(x, y, z))` | punch the entity standing on a block | `.targeted`, `.gone`, `.denied`, `.chat` |
+| `p.sit(at=(x, y, z))` | right-click the entity standing on a block | `.after` is what the player now rides (`p.riding()`), `.denied`, `.chat` |
 | `p.op() / p.deop() / p.give(item) / p.gamemode(m) / p.tp(x, y, z)` | server-side helpers (`tp` waits for chunks) | |
 | `p.hold(item) / p.look_at(x, y, z) / p.use() / p.attack(secs) / p.say(text)` | client-side verbs | |
 | `p.block(x, y, z)` / `p.entities(r=6)` | block id / nearby entities as the client sees them | string / list |
@@ -93,6 +95,8 @@ entities, interactions). Plain claim-logic questions are cheaper as unit tests i
 
 - One run at a time per MC version: ports (game, +1000 RCON, +2000 bot socket) and the client game
   dir are shared.
+- `--server-jar` boots that jar in its own server dir (`servers/<mc>-<jar stem>`) on the same ports; the
+  first Spigot boot extracts its bundle and takes longer.
 - A denied *break* produces a GP chat message; a denied *left-click* alone is silent.
 - Right-clicks hit the nearest block along the view ray, so actions teleport the bot next to the
   target.
