@@ -20,7 +20,7 @@ def run(scenario_path, mc, gp_jar, keep=False, server_jar=None):
     server, bots, t, error = Server(mc, server_jar), None, None, None
     with open(run_dir / "trace.log", "w") as trace:
         try:
-            server.start(gp_jar)
+            server.start(gp_jar, ns.get("GP_CONFIG"))
             bots = Bots(mc, server, run_dir)
             t = Test(server, bots, trace)
             ns["run"](t)

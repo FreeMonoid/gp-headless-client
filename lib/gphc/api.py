@@ -37,9 +37,15 @@ class Result:
 
 
 class Player:
-    def __init__(self, test, name):
+    def __init__(self, test, name, bot=None):
         self.t, self.name = test, name
-        self.bot = test.bots.launch(name)
+        self.bot = bot or test.bots.launch(name)
+
+    def quit(self):
+        """Disconnect this client. `t.player(name)` afterwards launches a fresh one."""
+        self.t.bots.release(self.bot)
+        self.bot = None
+        del self.t.players[self.name]
 
     # server-side helpers
     def op(self): self.t.cmd(f"op {self.name}")
@@ -136,6 +142,12 @@ class Player:
         return r
 
 
+class Login:
+    """Outcome of `t.login(name)`: `player` once joined, or `rejected` with the server's reason."""
+    def __init__(self, player=None, rejected=None):
+        self.player, self.rejected = player, rejected
+
+
 class Test:
     def __init__(self, server, bots, out):
         self.server, self.bots, self.out = server, bots, out
@@ -147,6 +159,14 @@ class Test:
         if name not in self.players:
             self.players[name] = Player(self, name)
         return self.players[name]
+
+    def login(self, name):
+        """Launch a client for `name` that the server may reject (ban, cooldown, whitelist...)."""
+        outcome = self.bots.launch(name, expect_reject=True)
+        if isinstance(outcome, str):
+            return Login(rejected=outcome)
+        self.players[name] = player = Player(self, name, bot=outcome)
+        return Login(player=player)
 
     def cmd(self, line):
         """Run a console command on the server and return its output."""

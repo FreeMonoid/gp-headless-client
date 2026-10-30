@@ -120,11 +120,11 @@ def read_from(path, pos=0):
         return f.read()
 
 
-def wait_for(log, pattern, proc, timeout, what):
-    """Poll `log` until `pattern` matches; fail if `proc` exits or `timeout` seconds pass."""
+def wait_for(log, pattern, proc, timeout, what, pos=0):
+    """Poll `log` (from byte `pos`) until `pattern` matches; fail if `proc` exits or `timeout` seconds pass."""
     rx, deadline = re.compile(pattern), time.time() + timeout
     while time.time() < deadline:
-        if rx.search(read_from(log)):
+        if rx.search(read_from(log, pos)):
             return
         if proc.poll() is not None:
             raise RuntimeError(f"process exited while waiting for {what}; see {log}")

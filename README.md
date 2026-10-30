@@ -38,6 +38,7 @@ issue repro; write new ones wherever the work happens.
 from gphc.api import GROUND           # top block of the flat world (-61); players stand at GROUND + 1
 
 MC = ["26.3"]                          # optional: versions the scenario applies to
+GP_CONFIG = {"GriefPrevention.Spam.LoginCooldownSeconds": 60}   # optional: GP config.yml overrides, dotted keys
 
 def run(t):
     owner = t.player("Offline1")                       # launches a client; Offline1..Offline3 exist
@@ -50,6 +51,8 @@ def run(t):
 | Call | Does | Result |
 |---|---|---|
 | `t.player(name)` | launch a client (once per name) | `Player` |
+| `t.login(name)` | launch a client the server may reject (ban, cooldown, whitelist) | `.player` or `.rejected` reason |
+| `p.quit()` | disconnect; `t.player(name)` launches a fresh client afterwards | |
 | `t.expect(name, ok, detail="")` | record a check | `ok` |
 | `t.cmd("...")` | console command over RCON | output text |
 | `p.claim((x1, z1), (x2, z2))` | golden shovel on two ground corners | `.created`, `.chat` |
@@ -71,8 +74,9 @@ p.tp(x, y + 1, z + 2)
 with p.watch(lambda: p.block(x, y, z)) as r:      # or p.entities, or nothing
     p.look_at(x + 0.5, y + 0.5, z + 0.5); p.use()
 ```
-Every run starts from a fresh flat world (peaceful, spawn protection off) and empty GP claim data;
-`GriefPrevention.Spam.LoginCooldownSeconds` is forced to 0 so bots can reconnect.
+Every run starts from a fresh flat world (peaceful, spawn protection off), empty GP claim data and a fresh
+GP `config.yml` holding `GriefPrevention.Spam.LoginCooldownSeconds: 0` (so bots can reconnect) plus the
+scenario's `GP_CONFIG`; GP fills in the rest with defaults.
 
 Worth it when the question is what Paper actually fires when a real player does X (new blocks,
 entities, interactions). Plain claim-logic questions are cheaper as unit tests in the GP repo.

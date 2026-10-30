@@ -4,11 +4,27 @@ from pathlib import Path
 from . import env
 
 RCON_PASSWORD = "gphc"
-GP_CONFIG = """\
-GriefPrevention:
-  Spam:
-    LoginCooldownSeconds: 0
-"""
+GP_CONFIG = {"GriefPrevention.Spam.LoginCooldownSeconds": 0}   # scenarios override via a GP_CONFIG dict of dotted keys
+
+
+def to_yaml(flat):
+    """Dotted keys -> nested YAML; scalars only, which is all GP's config needs."""
+    tree = {}
+    for key, value in flat.items():
+        node = tree
+        *path, leaf = key.split(".")
+        for part in path:
+            node = node.setdefault(part, {})
+        node[leaf] = value
+
+    def emit(node, depth):
+        for k, v in node.items():
+            if isinstance(v, dict):
+                yield f"{'  ' * depth}{k}:"
+                yield from emit(v, depth + 1)
+            else:
+                yield f"{'  ' * depth}{k}: {str(v).lower() if isinstance(v, bool) else v}"
+    return "\n".join(emit(tree, 0)) + "\n"
 
 
 class Server:
@@ -36,21 +52,19 @@ class Server:
         (self.dir / "server.properties").write_text("".join(f"{k}={v}\n" for k, v in props.items()))
         (self.dir / "plugins").mkdir(exist_ok=True)
 
-    def reset(self):
-        """Fresh world and fresh GP claim/player data; GP config.yml survives."""
+    def reset(self, gp_config=None):
+        """Fresh world, fresh GP claim/player data, GP config.yml = defaults + the scenario's GP_CONFIG."""
         for p in self.dir.glob("world*"):
             shutil.rmtree(p)
         gpdata = self.dir / "plugins" / "GriefPreventionData"
         for sub in ("ClaimData", "PlayerData"):
             shutil.rmtree(gpdata / sub, ignore_errors=True)
         gpdata.mkdir(parents=True, exist_ok=True)
-        cfg = gpdata / "config.yml"
-        if not cfg.exists():
-            cfg.write_text(GP_CONFIG)
+        (gpdata / "config.yml").write_text(to_yaml({**GP_CONFIG, **(gp_config or {})}))
 
-    def start(self, gp_jar):
+    def start(self, gp_jar, gp_config=None):
         self.prepare()
-        self.reset()
+        self.reset(gp_config)
         plugin = self.dir / "plugins" / "GriefPrevention.jar"
         plugin.unlink(missing_ok=True)
         if gp_jar:

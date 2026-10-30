@@ -22,7 +22,9 @@ class Bots:
         self.listener.settimeout(5)
         self.bots = []
 
-    def launch(self, name, timeout=180):
+    def launch(self, name, timeout=180, expect_reject=False):
+        """Launch `name` and return its Bot once it joined. If the server rejects the login, raise, or with
+        `expect_reject` return the rejection reason string instead."""
         env.hmc(self.mc, "account", "select", name, capture_output=True)
         log = self.run_dir / f"client-{name}.log"
         proc = env.launch_client(self.mc, log, "--jvm", "-Xmx2G", "--server", f"127.0.0.1:{self.server.port}")
@@ -36,6 +38,8 @@ class Bots:
                 kicked = re.search(rf"Disconnecting {name} .*?: (.*)", env.read_from(self.server.log, server_log_start))
                 if kicked:
                     env.terminate(proc)
+                    if expect_reject:
+                        return kicked.group(1).strip()
                     raise RuntimeError(f"server rejected {name}: {kicked.group(1)}")
                 continue
             bot = Bot(name, conn, proc, log)
@@ -47,6 +51,13 @@ class Bots:
             return bot
         env.terminate(proc)
         raise TimeoutError(f"client {name} did not join within {timeout}s; see {log}")
+
+    def release(self, bot):
+        """Kill one client (the server sees a plain disconnect) and wait until the server has processed it."""
+        start = self.server.log.stat().st_size
+        env.terminate(bot.proc)
+        self.bots.remove(bot)
+        env.wait_for(self.server.log, rf"{bot.name} left the game", self.server.proc, 30, f"{bot.name} leaving", start)
 
     def kill_all(self):
         for bot in self.bots:
